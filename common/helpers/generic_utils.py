@@ -3,7 +3,6 @@ Helper file for enabling easier usage of pandas.
 """
 
 from functools import reduce
-from IPython import display
 
 # TODO: Place checks and test it on pandas version
 
@@ -22,7 +21,7 @@ def csnap(orig_df, fn=lambda x: x.shape, msg=None):
     """
     if msg:
         print(msg)
-    display(fn(orig_df))
+    print(fn(orig_df))
     return orig_df
 
 

@@ -1,0 +1,12 @@
+pipenv:
+pip install pipenv
+production setup:
+pipenv install --ignore-pipfile
+dev setup:
+pipenv install --dev
+
+Date picker:
+Used to enable date picker in excel sheet for better UX.
+File zipped as samradapps_datepicker.zip
+For installation instructions,
+http://samradapps.com/datepicker
