@@ -16,6 +16,7 @@ easygui = "*"
 pywin32 = "*"
 numba = "*"
 pyodbc = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.7"
