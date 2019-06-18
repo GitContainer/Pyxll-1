@@ -1,0 +1,15 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          loadImage="pyxll.load_image">  <!-- pyxll.load_image is a built-in image loader -->
+    <group id="project" label="Project">
+                    <button id="load_config"
+                            size="large"
+                            label="Load Config (C)"
+                            onAction="fm_ribbon_functions.load_config"
+                            image="../icon_set/w10/dark/load_config.png"/>
+                    <button id="get_data"
+                            size="large"
+                            label="Get Data (G)"
+                            onAction="fm_ribbon_functions.get_data"
+                            image="../icon_set/w10/dark/get_data.png"/>
+                </group>
+</customUI>

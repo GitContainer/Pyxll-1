@@ -1,0 +1,27 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          loadImage="pyxll.load_image">  <!-- pyxll.load_image is a built-in image loader -->
+    <ribbon>
+        <tabs>
+            <tab id="pyxll" label="Pyxll">
+                <group id="dev" label="Dev">
+                    <button id="reload"
+                            size="normal"
+                            label="Reload (R)"
+                            onAction="fm_ribbon_functions.fm_reload"
+                            image="../icon_set/w10/dark/reload.png"/>
+                    <button id="connect"
+                            size="normal"
+                            label="Connect"
+                            onAction="generic_ribbon_functions.pycharm_connect"
+                            image="../icon_set/w10/dark/debug_connect.png"/>   <!-- images can be absolute paths or relative to this document -->
+                    <button id="reconnect"
+                            size="normal"
+                            label="Reconnect"
+                            onAction="generic_ribbon_functions.pycharm_reconnect"
+                            image="../icon_set/w10/dark/debug_reconnect.png"/>
+                </group>
+              
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>

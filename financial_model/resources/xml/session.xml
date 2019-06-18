@@ -1,0 +1,15 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          loadImage="pyxll.load_image">
+                    <group id="session" label="Session">
+                    <button id="load_session"
+                            size="large"
+                            label="Load (L)"
+                            onAction="fm_ribbon_functions.load_session"
+                            image="../icon_set/w10/dark/load_session.png"/>
+                    <button id="save_as_session"
+                            size="large"
+                            label="Save As (S)"
+                            onAction="fm_ribbon_functions.save_as_session"
+                            image="../icon_set/w10/dark/save_as_session.png"/>
+                </group>
+    </customUI>
