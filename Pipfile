@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+
+[packages]
+numpy = "*"
+pandas = "*"
+sqlalchemy = "*"
+pydevd = "*"
+pyxll = {path = "./pyxll-4.2.2-cp37-none-win_amd64.whl"}
+easygui = "*"
+pywin32 = "*"
+numba = "*"
+pyodbc = "*"
+
+[requires]
+python_version = "3.7"

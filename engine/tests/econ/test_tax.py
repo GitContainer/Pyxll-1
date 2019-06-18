@@ -1,4 +1,4 @@
-from econ.helpers import append_zeroes_front
+from econ.array_manipulations import append_zeroes_front
 from tax import two_tax_regime, make_tax
 import numpy as np
 
