@@ -53,12 +53,14 @@ class FMDataManager(DataManager):
         self["project_parameters"] = self.initiate_project_parameters()
         self["project_state_assets"] = assets
         self._log.info(self.tbl_names)
-        self.set_sections(self.get_sections())
+        sections_str = array_to_sql_string(self.get_sections())
+        self.set_par(name="sections", value=sections_str)
 
         self["type_curves"] = type_curves
         self["section_assumptions"] = section_assumptions
         self.load_data(self.query_manager["section_wells"])
-        self.set_apis(self.get_apis())
+        apis_str = array_to_sql_string(self.get_apis())
+        self.set_par(name="apis", value=apis_str)
 
         table_list = [
             "sections",
@@ -83,19 +85,11 @@ class FMDataManager(DataManager):
     def get_apis(self) -> np.ndarray:
         return self["section_wells"].api.unique()
 
-    def set_apis(self, apis_list: np.ndarray):
-        apis = array_to_sql_string(apis_list)
-        self._log.info(f"Setting apis to {apis}")
-        par_apis = Project_Parameter(name="apis", value=apis)
-        self.session.add(par_apis)
-        self.session.commit()
-
-    def set_sections(self, section_list: np.ndarray):
-        sections = array_to_sql_string(section_list)
-        self._log.info(f"Setting sections to {sections}")
-        par_sections = Project_Parameter(name="sections", value=sections)
-        self.session.add(par_sections)
-        self.session.commit()
+    def set_par(self, name: str, value: str):
+        self._log.info(f"Setting {name} to {value}")
+        with self.session_scope() as session:
+            par_apis = Project_Parameter(name=name, value=value)
+            session.add(par_apis)
 
     def initiate_project_parameters(self) -> pd.DataFrame:
         """
@@ -109,10 +103,10 @@ class FMDataManager(DataManager):
             name=[
                 "data_model",
                 "data_model_version",
-                "project_state_fin_eff_date",
-                "project_state_spacing_start_date",
-                "project_state_pooling_start_date",
-                "project_state_market_start_date",
+                "sett_state_fin_eff_date",
+                "sett_state_spacing_start_date",
+                "sett_state_pooling_start_date",
+                "sett_state_market_start_date",
             ],
             value=[
                 self._data_model,

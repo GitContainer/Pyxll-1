@@ -12,6 +12,11 @@ from tax import two_tax_regime
 
 
 def make_dca_pars(nwells, dtype):
+    """
+    :param nwells:
+    :param dtype:
+    :return:
+    """
     ip = np.random.uniform(low=100, high=3000, size=nwells).astype(dtype)
     # Di cannot be lower than dmin else the logic will be incorrect.
     di = np.random.uniform(low=0.10, high=1, size=nwells).astype(dtype)
@@ -145,7 +150,28 @@ def make_production(
     return production
 
 
-def workflow(nwells=1000, nmonths=600, dtype=np.float32):
+def well_econ(pricing, tax_rate, production):
+    assert pricing.shape[-1] == tax_rate.shape[-1] == production.shape[-1]
+
+    nwells = production.shape[-2]
+    nmonths = production.shape[-1]
+
+    # Revenue
+    pricing.resize((2, 1, nmonths))
+    revenue = production * pricing
+
+    # Tax
+    tax = revenue * tax_rate
+
+    # Profit
+    profit_without_expense = revenue - tax
+
+    pricing.resize((2, nmonths))
+    assert tax.shape == revenue.shape == profit_without_expense
+    return pricing, production, tax, revenue, profit_without_expense
+
+
+def sample_workflow(nwells=1000, nmonths=600, dtype=np.float32):
 
     # Shift months indicate the month at which the production should be shifted to.
     # The value is relative to the current financial effective date.
@@ -206,12 +232,12 @@ def workflow(nwells=1000, nmonths=600, dtype=np.float32):
     assert dates.shape[0] == pricing.shape[1] == given_nmonths
     assert tax_rate.shape == production.shape == (2, 2, nwells, given_nmonths)
 
-    # Revenue
-    pricing.resize((2, 1, given_nmonths))
-    revenue = production * tax_rate * pricing
+    pricing, tax, revenue, profit_without_expense = well_econ(
+        pricing, tax_rate, production
+    )
 
-    #
+    print("me")
 
 
-# workflow(nwells=100, nmonths=600)
-time_it(workflow, repeat=1, number=10, nwells=10000)
+# sample_workflow(nwells=100, nmonths=600)
+# time_it(workflow, repeat=1, number=10, nwells=1000)
