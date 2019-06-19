@@ -1,3 +1,5 @@
+import logging
+
 from fm_orm import Project_State_Asset, Well_Production
 from financial_model.tests.configtest import *
 import numpy as np
@@ -99,11 +101,12 @@ def test_np_array(fm_data_manager_xl: FMDataManager, make_dca_pars):
 
 
 @pytest.mark.parametrize(
-    "xl, fm_data_manager_xl, make_dca_pars",
-    [(None, None, (100, np.float32))],
+    "xl, fm_data_manager_xl, make_dca_pars, caplog",
+    [(None, None, (100, np.float32), None)],
     indirect=True,
 )
-def test_kiran(xl, fm_data_manager_xl, make_dca_pars):
+def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
+    caplog.set_level(logging.INFO)
     dm = fm_data_manager_xl
 
     assets = to_df(get_value("project_state_assets", xl=xl))
