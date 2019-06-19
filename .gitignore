@@ -1,0 +1,9 @@
+*.fm
+*.gm
+fm_config.ini
+.idea
+
+
+*.pyc
+*.pyo
+~.*

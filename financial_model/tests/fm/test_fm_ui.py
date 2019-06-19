@@ -5,6 +5,7 @@ import pytest
 
 from engine.tests.configtest import make_dca_pars
 from engine.core.dca.mod_arps import np_mod_arps_fit
+from fm_ui import reset_defaults
 
 
 @pytest.mark.parametrize(
@@ -103,7 +104,6 @@ def test_np_array(fm_data_manager_xl: FMDataManager, make_dca_pars):
     indirect=True,
 )
 def test_kiran(xl, fm_data_manager_xl, make_dca_pars):
-    xl = xl
     dm = fm_data_manager_xl
 
     assets = to_df(get_value("project_state_assets", xl=xl))
@@ -113,3 +113,7 @@ def test_kiran(xl, fm_data_manager_xl, make_dca_pars):
     dm.set_new_session(
         assets=assets, type_curves=type_curves, section_assumptions=section_assumptions
     )
+
+
+def test_setf(xl):
+    reset_defaults()

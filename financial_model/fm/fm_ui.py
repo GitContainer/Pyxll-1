@@ -1,3 +1,4 @@
+import pytest
 from pyxll import xl_func, xl_on_close, xl_app, xl_on_reload, xl_macro
 
 from generic_exceptions import Win32COMCacheException
@@ -10,6 +11,7 @@ from generic_fns import (
     get_cached_object,
     message_box,
     clear_win32com_cache,
+    set_value,
 )
 from generic_ui import (
     create_source_connector,
@@ -79,6 +81,24 @@ def ui_closure():
 def ui_reload(trigger):
     ui_closure()
     ui_initiation()
+
+
+def set_default_values(defaults: dict):
+    for key, value in defaults.items():
+        set_value(key, value)
+
+
+def set_default_formulae(defaults: dict):
+    for key, value in defaults.items():
+        set_formula(key, value)
+
+
+@xl_func
+def reset_defaults():
+    cfg = load_config_xl()
+
+    set_default_values(cfg["DEFAULTS_VALUES"])
+    set_default_formulae(cfg["DEFAULTS_FORMULAE"])
 
 
 @xl_macro
