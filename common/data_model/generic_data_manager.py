@@ -282,7 +282,7 @@ class DataManager:
         return True if par == "()" else False
 
     def query_sub_pars(self, query: Query):
-        # TODO: reduce COC
+        # TODO: reduce Cyclomatic complexity
         sql_query = None
         if query.filter:
             if "|" in query.filter:
@@ -311,7 +311,7 @@ class DataManager:
         return df
 
     def load_data(self, query: Query, if_exists="append"):
-        self._log.info(f"Fetching {query.name}")
+        # self._log.info(f"Fetching {query.name}")
         table = self.get_table_handle(query.name)
         tbl_name = table.name
 

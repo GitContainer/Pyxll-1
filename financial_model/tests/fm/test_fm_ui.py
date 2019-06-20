@@ -1,13 +1,31 @@
 import logging
 
-from fm_orm import Project_State_Asset, Well_Production
+from fm_orm import Project_State_Asset, Well_Oneline, Section_Well, Section_Assumption
 from financial_model.tests.configtest import *
 import numpy as np
 import pytest
 
 from engine.tests.configtest import make_dca_pars
+from form_norm import form_norm
+from tests.configtest import *
 from engine.core.dca.mod_arps import np_mod_arps_fit
-from fm_ui import reset_defaults
+from fm_ui import (
+    reset_defaults,
+    ui_reload,
+    ui_initiation,
+    ui_closure,
+    read_project_settings,
+)
+from generic_fns import (
+    halt_screen_update,
+    add_xl_app,
+    get_names_with_string,
+    get_cached_object,
+    get_address,
+    xl_add_row,
+    xl_add_column,
+    copy_df_xl,
+)
 
 
 @pytest.mark.parametrize(
@@ -118,5 +136,73 @@ def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
     )
 
 
-def test_setf(xl):
-    reset_defaults()
+@pytest.mark.parametrize(
+    "xl, fm_data_manager_xl, caplog",
+    [
+        (
+            None,
+            # None,
+            "C:/Users/adi/PycharmProjects/Pyxll/financial_model/backup/named/test.fm",
+            None,
+        )
+    ],
+    indirect=True,
+)
+def test_normalize_formation(xl, fm_data_manager_xl, caplog):
+    caplog.set_level(logging.INFO)
+    dm = fm_data_manager_xl  # type: FMDataManager
+
+    data = (
+        dm.session.query(
+            Well_Oneline.api,
+            Well_Oneline.well_name,
+            Well_Oneline.operator_name,
+            Well_Oneline.formation,
+            Section_Assumption.formation_1,
+            Section_Assumption.formation_2,
+        )
+        .join(Section_Well)
+        .join(Project_State_Asset)
+        .join(Section_Assumption)
+        .all()
+    )
+
+    df = pd.DataFrame(data)
+
+    # This line added in case a multi unit well lying in two different sections have two different
+    # section assumptions
+
+    df = df.drop_duplicates(["api"])
+    string_array = df.iloc[:, 1:].values.transpose().astype("unicode")
+    formation = form_norm(string_array)
+    df["norm_formation"] = formation
+
+    df.columns = [
+        "api",
+        "well_name",
+        "operator_name",
+        "formation",
+        "formation_1",
+        "formation_2",
+        "norm_formation",
+    ]
+
+    assert formation.shape[0] == dm["well_onelines"].shape[0]
+
+    with dm.session_scope() as session:
+        for i, row in df.iterrows():
+            selected_well = (
+                session.query(Well_Oneline).filter(Well_Oneline.api == row["api"]).one()
+            )  # type: Well_Oneline
+            selected_well.norm_formation = row.norm_formation
+
+    copy_df_xl(
+        df=df,
+        sheet="Formation",
+        name="formation_state_normalizer",
+        copy_columns=False,
+        xl=xl,
+    )
+
+    dm.data_formatter.formation_state_normalizer()
+    assert True

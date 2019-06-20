@@ -1,8 +1,9 @@
 import pandas as pd
+import numpy as np
 from sqlalchemy.sql.sqltypes import Float, Integer, Date
 
 from generic_data_loader import DataLoader
-from generic_fns import whoami
+from generic_fns import whoami, message_box
 from generic_tfs import (
     tf_api,
     tf_number_wells,
@@ -117,6 +118,14 @@ class FMDataLoader(DataLoader):
             df = df.pipe(ccast, (float_cols, tf_net_acres)).pipe(
                 ccast, (date_cols, tf_date)
             )
+            pk = table.primary_key.columns.keys()
+            duplicates = df.duplicated(pk)
+            dup_idx = ", ".join(df[duplicates].index.astype("unicode").tolist())
+            if np.all(duplicates):
+                message_box(
+                    f"Duplicate assets found at {dup_idx}. {', '.join(pk)} combination should be unique."
+                )
+
             return df
 
     def project_parameters(self, df: pd.DataFrame, table: SQLTable) -> pd.DataFrame:
@@ -136,14 +145,19 @@ class FMDataLoader(DataLoader):
 
     def well_onelines(self, df: pd.DataFrame, table: SQLTable) -> pd.DataFrame:
         self._log.debug(f"Cleaning {whoami()}")
-        exception_list = ["norm_formation"]
-        if self.column_check(df.columns.tolist(), table, exception_list):
-            float_cols = self.get_column_types(table, Float)
-            date_cols = self.get_column_types(table, Date)
-            df = (
-                df.pipe(ccast, (["api"], tf_api))
-                .pipe(ccast, (["total_footage"], tf_u_int))
-                .pipe(ccast, (float_cols, tf_float))
-                .pipe(ccast, (date_cols, tf_date))
-            )
-            return df
+        # stream_cols = [
+        #     par + "_" + stream
+        #     for par in ["ip", "di", "dmin", "b"]
+        #     for stream in ["oil", "gas"]
+        # ]
+        # exception_list = ["norm_formation"] + stream_cols
+        # if self.column_check(df.columns.tolist(), table, exception_list):
+        #     float_cols = self.get_column_types(table, Float)
+        #     date_cols = self.get_column_types(table, Date)
+        #     df = (
+        #         df.pipe(ccast, (["api"], tf_api))
+        #         .pipe(ccast, (["total_footage"], tf_u_int))
+        #         .pipe(ccast, (float_cols, tf_float))
+        #         .pipe(ccast, (date_cols, tf_date))
+        #     )
+        return df

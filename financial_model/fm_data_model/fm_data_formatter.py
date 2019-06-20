@@ -5,6 +5,8 @@ from generic_fns import (
     date_formatter,
     var_loe_formatter,
     align_center,
+    api_formatter,
+    excel_data_bar,
 )
 from generic_fns import add_xl_app, get_address, whoami
 from generic_type_hints import w32
@@ -14,7 +16,7 @@ from generic_data_formatter import DataFormatter
 class FMDataFormatter(DataFormatter):
     @add_xl_app
     def project_parameters(self, xl: w32 = None):
-        date_formatter(get_address("project_state_fin_eff_date", xl=xl))
+        date_formatter(get_address("sett_fin_eff_dt", xl=xl))
 
     @add_xl_app
     def project_state_assets(self, xl: w32 = None):
@@ -31,3 +33,11 @@ class FMDataFormatter(DataFormatter):
         var_loe_formatter(column_range["var_oil"], xl=xl)
         var_loe_formatter(column_range["var_gas"], xl=xl)
         align_center(get_address(whoami()))
+
+        # excel_data_bar(column_range(["royalty"]), xl=xl)
+
+    @add_xl_app
+    def formation_state_normalizer(self, xl: w32 = None):
+        column_range = self.map_columns_range(whoami(), xl=xl)
+
+        api_formatter(column_range["api"], xl=xl)

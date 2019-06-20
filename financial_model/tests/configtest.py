@@ -3,6 +3,7 @@ import pytest
 from fm_data_formatter import FMDataFormatter
 from fm_data_loader import FMDataLoader
 from fm_data_manager import FMDataManager
+from fm_ui import read_project_settings
 from generic_debugger import connect_to_excel
 from generic_fns import get_value, load_config_path, to_df, ParametersParser
 from generic_objects import SourceConnector, QueryManager
@@ -87,6 +88,7 @@ def create_data_manager_xl(
 
 @pytest.fixture(scope="session")
 def fm_data_manager_xl(
+    xl,
     config_xl,
     query_manager_xl,
     source_connector_xl,
@@ -95,7 +97,7 @@ def fm_data_manager_xl(
     request,
 ) -> FMDataManager:
 
-    return FMDataManager(
+    dm = FMDataManager(
         cfg=config_xl,
         qm=query_manager_xl,
         sc=source_connector_xl,
@@ -103,3 +105,18 @@ def fm_data_manager_xl(
         df=data_formatter_xl,
         restore=request.param,
     )
+
+    if request.param is None:
+        assets = to_df(get_value("project_state_assets", xl=xl))
+        type_curves = to_df(get_value("type_curves", xl=xl))
+        section_assumptions = to_df(get_value("section_assumptions", xl=xl))
+        external_settings = read_project_settings(string="sett_", xl=xl)
+
+        dm.set_new_session(
+            external_settings=external_settings,
+            assets=assets,
+            type_curves=type_curves,
+            section_assumptions=section_assumptions,
+        )
+
+    return dm

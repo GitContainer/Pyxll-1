@@ -21,7 +21,7 @@ def form_norm(string_array, known_formations=None):
 
         0. well_name
         1. operator_name
-        2. formation (concatenated with space)
+        2. formation (concatenated with a delimiter)
         3. formation 1 (from section assumption)
         4. formation 2 (from section assumption)
     :param known_formations: np.array
@@ -33,7 +33,7 @@ def form_norm(string_array, known_formations=None):
 
     assert string_array.shape[0] == 5, "Unexpected string_array shape"
 
-    string_array = string_array.upper().astype("unicode")
+    # string_array = string_array.upper().astype("unicode")
     wells = string_array[0]  # type: np.array
     operators = string_array[1]  # type: np.array
     formations = string_array[2]  # type: np.array

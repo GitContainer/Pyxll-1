@@ -86,6 +86,9 @@ class Section_Well(base):
     f1000 = relationship("f1000", cascade="all, delete-orphan", single_parent=True)
     f1001 = relationship("f1001", cascade="all, delete-orphan", single_parent=True)
     f1002 = relationship("f1002", cascade="all, delete-orphan", single_parent=True)
+    well_oneline = relationship(
+        "Well_Oneline", cascade="all, delete-orphan", single_parent=True
+    )
 
     def __str__(self):
         return f"{self.trsm_heh} - {self.proxy_allocation if not self.allocation else self.proxy_allocation} ({self.api})"
@@ -283,27 +286,6 @@ class Project_Parameter(base):
         self.value = value
 
 
-class Well_Production(base):
-    __tablename__ = "well_productions"
-
-    api = Column(Integer, ForeignKey("well_onelines.api"), primary_key=True)
-
-    ip_oil = Column(Float)
-    di_oil = Column(Float)
-    dmin_oil = Column(Float)
-    b_oil = Column(Float)
-
-    ip_gas = Column(Float)
-    di_gas = Column(Float)
-    dmin_gas = Column(Float)
-    b_gas = Column(Float)
-
-    pred_oil_prod = Column(NumpyType, default=np.array([]))
-    gross_oil_prod = Column(Float)
-    pred_gas_prod = Column(NumpyType, default=np.array([]))
-    gross_gas_prod = Column(Float)
-
-
 class Section_Oneline(base):
     __tablename__ = "section_onelines"
 
@@ -328,7 +310,7 @@ class Section_Oneline(base):
 class Well_Oneline(base):
     __tablename__ = "well_onelines"
 
-    api = Column(Integer, primary_key=True)
+    api = Column(Integer, ForeignKey("section_wells.api"), primary_key=True)
     formation = Column(String)
     operator_name = Column(String)
     well_name = Column(String)
@@ -355,3 +337,11 @@ class Well_Oneline(base):
     date_completion = Column(Date)
     date_first_prod = Column(Date)
     date_last_prod = Column(Date)
+
+    di_oil = Column(Float)
+    dmin_oil = Column(Float)
+    b_oil = Column(Float)
+
+    di_gas = Column(Float)
+    dmin_gas = Column(Float)
+    b_gas = Column(Float)

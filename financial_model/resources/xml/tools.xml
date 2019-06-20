@@ -1,0 +1,10 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          loadImage="pyxll.load_image">
+                    <group id="tools" label="Tools">
+                    <button id="normalize_formation"
+                            size="large"
+                            label="Normalize Formation"
+                            onAction="fm_ribbon_functions.normalize_formation"
+                            image="../icon_set/w10/dark/form_norm.png"/>
+                </group>
+    </customUI>
