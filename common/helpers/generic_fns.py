@@ -10,7 +10,6 @@ from configparser import ExtendedInterpolation
 from datetime import datetime
 from functools import wraps, partial
 from types import FunctionType
-from datetime import datetime
 
 import easygui
 import math
@@ -19,6 +18,7 @@ import pandas as pd
 import win32api
 import win32com
 import win32com.client
+import win32com.client as win32
 from pyxll import xl_app, get_type_converter, ObjectCacheKeyError, xl_func
 
 from generic_exceptions import (
@@ -230,6 +230,11 @@ def excel_styler(address: str, style_format: str, xl: w32 = None):
 
 
 @add_xl_app
+def excel_data_bar(address: str, xl: w32 = None):
+    xl.Range(address).BarFillType = win32.constants.xlDataBarFillSolid
+
+
+@add_xl_app
 def default_formatter(address, xl: w32 = None):
     """
     Default formatting an Excel Range.
@@ -266,6 +271,19 @@ def acreage_formatter(address, xl: w32 = None):
     xl:  {None, xl_app}
     """
     return excel_formatter(address, format_option="0.0000", xl=xl)
+
+
+@add_xl_app
+def api_formatter(address, xl: w32 = None):
+    """
+    Project wide api formatter
+
+    Parameters
+    ----------
+    address:str
+    xl:  {None, xl_app}
+    """
+    return excel_formatter(address, format_option="0", xl=xl)
 
 
 @add_xl_app
@@ -763,7 +781,7 @@ def set_value(name, value, xl: w32 = None):
         Value to be placed in the range
     xl:  {None, xl_app}
     """
-    logging.info(f"Setting {name} value")
+    # logging.info(f"Setting {name} value")
     xl.Range(name).Value = value
 
 
@@ -778,9 +796,6 @@ def xl_add_row(address: str, nrows: int = 1) -> str:
         Excel Address
     nrows: int
         number of rows to add to the address given
-    replace_n: int
-        number of instances to be replaced.
-        If the range is 2D then this should be 2 els if it is scalar then 1.
 
     Returns
     -------
@@ -1052,7 +1067,7 @@ def set_formula(
     else:
         formula = ""
     if not check_object_alive(name) or replace:
-        logging.info(f"Setting {name} as {formula}")
+        # logging.info(f"Setting {name} as {formula}")
         xl.Range(name).Formula = formula
 
 
@@ -1098,47 +1113,70 @@ def set_address(address: str, value, xl: w32 = None):
     xl.ActiveSheet.Range(address).Value = value
 
 
+#
+# @add_xl_app
+# def copy_df_xl(
+#     df: pd.DataFrame, sheet: str, name: str, copy_columns: bool = False, xl: w32 = None
+# ):
+#
+#     """
+#     Paste a Pandas df to an excel range.
+#
+#     Parameters
+#     ----------
+#     df: pd.DataFrame
+#         Dataframe to be copied to the excel;
+#     sheet: str
+#         sheet where the copy needs to take place
+#     name: str
+#         Excel named range where the copy will occur
+#     copy_columns: bool
+#         Flag to control inclusion of column names in copying.
+#     xl: {None, xl_app}
+#
+#     Warning
+#     -------
+#     Time taken is proportional to the data frame dimension.
+#     For a (1000, 9) df it takes ~ 90 sec.
+#     TODO: Try out PyExcelerate or xlsxwriter
+#     https://pypi.org/project/PyExcelerate/
+#     https://xlsxwriter.readthedocs.io/working_with_memory.html
+#     """
+#     xl.ScreenUpdating = False
+#     try:
+#         start_cell = get_address(name).split(":")[0]
+#         if not copy_columns:
+#             start_cell = xl_add_row(start_cell)
+#
+#         xl.ActiveWorkbook.Sheets(sheet).Activate()
+#
+#         for index, row in df.iterrows():
+#             for value in row:
+#                 xl.ActiveSheet.Range(start_cell).Value = value
+#                 start_cell = xl_add_column(start_cell)
+#             start_cell = xl_add_column(start_cell, ncols=-df.shape[1])
+#             start_cell = xl_add_row(start_cell)
+#     finally:
+#         xl.ScreenUpdating = True
+
+
 @add_xl_app
 def copy_df_xl(
     df: pd.DataFrame, sheet: str, name: str, copy_columns: bool = False, xl: w32 = None
 ):
-    """
-    Paste a Pandas df to an excel range.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Dataframe to be copied to the excel;
-    sheet: str
-        sheet where the copy needs to take place
-    name: str
-        Excel named range where the copy will occur
-    copy_columns: bool
-        Flag to control inclusion of column names in copying.
-    xl: {None, xl_app}
-
-    Warning
-    -------
-    Time taken is proportional to the data frame dimension.
-    For a (1000, 9) df it takes ~ 90 sec.
-    TODO: Try out PyExcelerate or xlsxwriter
-    https://pypi.org/project/PyExcelerate/
-    https://xlsxwriter.readthedocs.io/working_with_memory.html
-    """
     xl.ScreenUpdating = False
     try:
-        start_cell = get_address(name).split(":")[0]
-        if not copy_columns:
-            start_cell = xl_add_row(start_cell)
+        excel_data = df.to_records(index=False).tolist()
+        range = get_address(name)
 
-        xl.ActiveWorkbook.Sheets(sheet).Activate()
+        row, _ = range.split(":")
+        start_cell = row if copy_columns else xl_add_row(row, 1)
 
-        for index, row in df.iterrows():
-            for value in row:
-                xl.ActiveSheet.Range(start_cell).Value = value
-                start_cell = xl_add_column(start_cell)
-            start_cell = xl_add_column(start_cell, ncols=-df.shape[1])
-            start_cell = xl_add_row(start_cell)
+        end_cell = xl_add_row(start_cell, df.shape[0] - 1)
+        end_cell = xl_add_column(end_cell, df.shape[1] - 1)
+
+        write_range = start_cell + ":" + end_cell
+        xl.ActiveWorkbook.Sheets(sheet).Range(write_range).Value = excel_data
     finally:
         xl.ScreenUpdating = True
 

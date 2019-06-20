@@ -8,7 +8,7 @@
                             image="../icon_set/w10/dark/load_config.png"/>
                     <button id="get_data"
                             size="large"
-                            label="Get Data (G)"
+                            label="Get Data"
                             onAction="fm_ribbon_functions.get_data"
                             image="../icon_set/w10/dark/get_data.png"/>
                 </group>

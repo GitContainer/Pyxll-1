@@ -46,19 +46,22 @@ class FMDataManager(DataManager):
 
     def set_new_session(
         self,
+        external_settings: pd.DataFrame,
         assets: pd.DataFrame,
         type_curves: pd.DataFrame,
         section_assumptions: pd.DataFrame,
     ):
-        self["project_parameters"] = self.initiate_project_parameters()
+        self["project_parameters"] = self.initiate_project_parameters(external_settings)
         self["project_state_assets"] = assets
-        self._log.info(self.tbl_names)
+
         sections_str = array_to_sql_string(self.get_sections())
         self.set_par(name="sections", value=sections_str)
 
         self["type_curves"] = type_curves
         self["section_assumptions"] = section_assumptions
+
         self.load_data(self.query_manager["section_wells"])
+
         apis_str = array_to_sql_string(self.get_apis())
         self.set_par(name="apis", value=apis_str)
 
@@ -91,30 +94,18 @@ class FMDataManager(DataManager):
             par_apis = Project_Parameter(name=name, value=value)
             session.add(par_apis)
 
-    def initiate_project_parameters(self) -> pd.DataFrame:
+    def initiate_project_parameters(self, external_settings) -> pd.DataFrame:
         """
 
         Returns
         -------
 
         """
-        first_dom = get_curr_first_dom()
-        parameters = dict(
-            name=[
-                "data_model",
-                "data_model_version",
-                "sett_state_fin_eff_date",
-                "sett_state_spacing_start_date",
-                "sett_state_pooling_start_date",
-                "sett_state_market_start_date",
-            ],
-            value=[
-                self._data_model,
-                self._data_model_version,
-                str(first_dom),
-                str(datetime(2000, 1, 1)),
-                str(datetime(2000, 1, 1)),
-                str(first_dom),
-            ],
+        internal_settings = dict(
+            name=["data_model", "data_model_version"],
+            value=[self._data_model, self._data_model_version],
         )
-        return pd.DataFrame(parameters)
+        internal_settings = pd.DataFrame(internal_settings)
+
+        settings = pd.concat([internal_settings, external_settings])
+        return settings

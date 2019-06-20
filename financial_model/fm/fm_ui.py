@@ -1,3 +1,6 @@
+import logging
+
+import pandas as pd
 import pytest
 from pyxll import xl_func, xl_on_close, xl_app, xl_on_reload, xl_macro
 
@@ -12,6 +15,9 @@ from generic_fns import (
     message_box,
     clear_win32com_cache,
     set_value,
+    ParametersParser,
+    add_xl_app,
+    get_names_with_string,
 )
 from generic_ui import (
     create_source_connector,
@@ -74,7 +80,7 @@ def ui_closure():
     # )
     clear_list(containing_string="fm_fn", xl=xl)
     clear_list(containing_string="obj", xl=xl)
-    clear_user_zones(containing_string="state", including_columns=False, xl=xl)
+    clear_user_zones(containing_string="state", xl=xl)
 
 
 @xl_on_reload
@@ -88,17 +94,34 @@ def set_default_values(defaults: dict):
         set_value(key, value)
 
 
-def set_default_formulae(defaults: dict):
+def set_default_formulae(defaults: dict, xl):
     for key, value in defaults.items():
-        set_formula(key, value)
+        xl.Range(key).Formula = "=" + value
 
 
+@add_xl_app
 @xl_func
-def reset_defaults():
-    cfg = load_config_xl()
+def reset_defaults(xl=None):
+    xl.ScreenUpdating = False
+    try:
+        logging.info("Resetting Defaults")
+        cfg = get_cached_object(get_value("data_obj_cfg"))  # type: ParametersParser
 
-    set_default_values(cfg["DEFAULTS_VALUES"])
-    set_default_formulae(cfg["DEFAULTS_FORMULAE"])
+        set_default_values(cfg["DEFAULTS_VALUES"])
+        set_default_formulae(cfg["DEFAULTS_FORMULAE"], xl=xl)
+    finally:
+        xl.ScreenUpdating = True
+
+
+@add_xl_app
+@xl_func
+def read_project_settings(string: str = "sett_", xl=None) -> pd.DataFrame:
+    settings_names = get_names_with_string(pattern=string, xl=xl)
+    settings_values = [str(get_value(setting, xl=xl)) for setting in settings_names]
+
+    settings = dict(name=settings_names, value=settings_values)
+    settings_df = pd.DataFrame(settings)
+    return settings_df
 
 
 @xl_macro
@@ -108,6 +131,10 @@ def ui_initiation():
     except AttributeError:
         clear_win32com_cache()
         raise Win32COMCacheException
+
     set_formula("data_obj_cfg", fn=load_config_xl, xl=xl)
+    reset_defaults(xl=xl)
+
     load_module_xml("session", xl=xl)
     load_module_xml("project", xl=xl)
+    load_module_xml("tools", xl=xl)
