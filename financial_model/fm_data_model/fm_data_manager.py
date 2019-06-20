@@ -51,6 +51,7 @@ class FMDataManager(DataManager):
         type_curves: pd.DataFrame,
         section_assumptions: pd.DataFrame,
     ):
+        df = self.initiate_project_parameters(external_settings)
         self["project_parameters"] = self.initiate_project_parameters(external_settings)
         self["project_state_assets"] = assets
 

@@ -155,9 +155,10 @@ def normalize_formation(trigger):
 
     df = df.drop_duplicates(["api"]).reset_index(drop=True)
     string_array = df.iloc[:, 1:].values.transpose().astype("unicode")
-    formation = form_norm(string_array)
-    df["norm_formation"] = formation
 
+    formation = form_norm(string_array)
+
+    df["norm_formation"] = formation
     df.columns = [
         "api",
         "well_name",
