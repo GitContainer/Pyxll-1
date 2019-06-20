@@ -1,6 +1,7 @@
 *.fm
 *.gm
 fm_config.ini
+financial_model.xlsm
 
 .idea
 *.pyc
