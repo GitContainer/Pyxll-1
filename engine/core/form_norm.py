@@ -33,13 +33,11 @@ def form_norm(string_array, known_formations=None):
 
     assert string_array.shape[0] == 5, "Unexpected string_array shape"
 
-    # string_array = string_array.upper().astype("unicode")
     wells = string_array[0]  # type: np.array
     operators = string_array[1]  # type: np.array
     formations = string_array[2]  # type: np.array
     formation_1 = string_array[3]  # type: np.array
     formation_2 = string_array[4]  # type: np.array
-
     if known_formations is None:
         known_formations = np.array(
             [

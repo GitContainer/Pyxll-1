@@ -78,7 +78,7 @@ class FMDataManager(DataManager):
             "oil_prices",
             "gas_prices",
             "well_onelines",
-            "section_onelines"
+            # "section_onelines"
             # "markets",
         ]
         self.load_data_list(table_list)

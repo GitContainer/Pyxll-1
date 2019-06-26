@@ -435,11 +435,12 @@ def process_section_online(df_i_w_l, df_f1000, df_f1001, df_f1002, df_inc_den):
     [
         (
             None,
-            "C:/Users/adi/PycharmProjects/Pyxll/financial_model/backup/named/test.fm",
+            "C:/Users/kiran/PycharmProjects/Pyxll/financial_model/backup/named/test.fm",
             (100, np.float32),
             None,
         )
     ],
+
     indirect=True,
 )
 def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
@@ -457,5 +458,6 @@ def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
     print(result_df.shape)
     print(result_df.columns)
     dm["section_onelines"] = result_df
+
 
     assert True

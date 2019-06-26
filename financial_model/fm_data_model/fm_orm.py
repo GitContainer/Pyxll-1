@@ -314,6 +314,7 @@ class Well_Oneline(base):
     formation = Column(String)
     operator_name = Column(String)
     well_name = Column(String)
+    well_number = Column(String)
 
     total_footage = Column(Integer)
 
