@@ -22,12 +22,14 @@ from generic_fns import (
     message_box,
     normalize_column_names,
     time_it,
+    get_column_types,
 )
 from generic_objects import QueryManager, SourceConnector, Query
 from generic_type_hints import SQLTable, List, Dict, SQLQuery, SQLSession
 from generic_data_formatter import DataFormatter
 from generic_data_loader import DataLoader
 import numpy as np
+from sqlalchemy.sql.sqltypes import Date
 
 
 class DataManager:
@@ -244,7 +246,9 @@ class DataManager:
         table = self.get_table_handle(name)
         if not statement:
             statement = self.session.query(table).statement
-        return pd.read_sql(statement, self.session.bind)
+        date_cols = get_column_types(table, Date)
+        # parse_dates = {col: pd.to_datetime for col in date_cols}
+        return pd.read_sql(statement, self.session.bind, parse_dates=date_cols)
 
     @staticmethod
     def get_np_array(
@@ -270,13 +274,13 @@ class DataManager:
             "project_parameters", self.db_engine, if_exists="replace", index=False
         )
 
-    def get_par(self, filter: str, par_table="project_parameters") -> str:
+    def get_par(self, filter: str, par_table: str = "project_parameters", tf=str):
         df = self[par_table].query("name == @filter")
 
         if df.shape[0] != 1:
             raise ErrorFindingProjectParameter(filter)
 
-        return df.value.values[0]
+        return tf(df.value.values[0])
 
     def is_par_empty(self, par: str) -> bool:
         return True if par == "()" else False

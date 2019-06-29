@@ -123,7 +123,7 @@ def check_cache(handler):
     logging.info(get_cached_object(handler))
 
 
-@xl_func(volatile=False)
+@xl_func
 def load_config_xl():
     logging.info("Loading Configurations")
     xl = xl_app()

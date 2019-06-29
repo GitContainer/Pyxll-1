@@ -28,7 +28,7 @@ from generic_exceptions import (
     SheetNameNotFoundException,
     MismatchingColumnCountException,
 )
-from generic_type_hints import w32, List, Callable, Dict
+from generic_type_hints import w32, List, Callable, Dict, SQLTable
 from generic_utils import *
 
 alphabets_value = dict(
@@ -499,7 +499,7 @@ def clear_list(containing_string: str, xl: w32 = None):
     # Object and needs to be cleared when a session starts and ends
     clear_list("obj", xl=None)
     """
-    logging.info(f"Clearing list containing {containing_string}")
+    # logging.info(f"Clearing list containing {containing_string}")
     remove_list = get_names_with_string(containing_string, xl=xl)
     for entity in remove_list:
         set_formula(entity, fn=None, xl=xl, replace=True)
@@ -1167,13 +1167,42 @@ def copy_df_xl(
     xl.ScreenUpdating = False
     try:
         excel_data = df.to_records(index=False).tolist()
+
+        if copy_columns:
+            excel_data.insert(0, tuple(df.columns.tolist()))
+
         range = get_address(name)
 
         row, _ = range.split(":")
         start_cell = row if copy_columns else xl_add_row(row, 1)
 
-        end_cell = xl_add_row(start_cell, df.shape[0] - 1)
+        add_row = 1 if not copy_columns else 0
+        end_cell = xl_add_row(start_cell, df.shape[0] - add_row)
         end_cell = xl_add_column(end_cell, df.shape[1] - 1)
+
+        write_range = start_cell + ":" + end_cell
+        xl.ActiveWorkbook.Sheets(sheet).Range(write_range).Value = excel_data
+    finally:
+        xl.ScreenUpdating = True
+
+
+@add_xl_app
+def copy_np_xl(array: np.ndarray, sheet: str, name: str, xl: w32 = None):
+    """
+    1D array to a excel sheet
+    :param array:
+    :param sheet:
+    :param name:
+    :param xl:
+    :return:
+    """
+    xl.ScreenUpdating = False
+    try:
+        excel_data = pd.DataFrame(array).to_records(index=False).tolist()
+        range = get_address(name)
+
+        start_cell, _ = range.split(":")
+        end_cell = xl_add_row(start_cell, array.shape[0] - 1)
 
         write_range = start_cell + ":" + end_cell
         xl.ActiveWorkbook.Sheets(sheet).Range(write_range).Value = excel_data
@@ -1282,3 +1311,25 @@ def clear_win32com_cache():
     message_box(
         f"Pyxll encountering unexpected errors. Try clearing cache in {cache_path}"
     )
+
+
+def get_column_types(table: SQLTable, col_type):
+    """
+    Used to get columns of certain type from the SQLTable
+
+    Parameters
+    ----------
+    table: SQLTable
+    col_type:
+        SQLAlchemy Column Type to filter for
+
+    Returns
+    -------
+    List of SQLAlchemy Columns
+    """
+    table_columns = table.columns
+    cols = list()
+    for column in table_columns:
+        if isinstance(column.type, col_type):
+            cols.append(column.name)
+    return cols

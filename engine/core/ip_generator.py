@@ -5,7 +5,6 @@ Have direct impact on the valuation of a section.
 The logic is written in a for loop for easier understanding and compiled in numba for efficiency.
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 from numba import jit
 

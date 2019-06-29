@@ -20,10 +20,11 @@ def form_norm(string_array, known_formations=None):
         Array should be oneline. One row per well.
 
         0. well_name
-        1. operator_name
-        2. formation (concatenated with a delimiter)
-        3. formation 1 (from section assumption)
-        4. formation 2 (from section assumption)
+        1. well_number
+        2. operator_name
+        3. formation (concatenated with a delimiter)
+        4. formation 1 (from section assumption)
+        5. formation 2 (from section assumption)
     :param known_formations: np.array
     :return: np.array (1, nwells)
         Normalized formation. May contain empty string in case of no logic match.
@@ -31,9 +32,10 @@ def form_norm(string_array, known_formations=None):
     if string_array.shape[1] == 0:
         return string_array
 
-    assert string_array.shape[0] == 5, "Unexpected string_array shape"
+    assert string_array.shape[0] == 6, "Unexpected string_array shape"
 
-    wells = string_array[0]  # type: np.array
+    well_names = string_array[0]  # type: np.array
+    well_numbers = string_array[1]  # type: np.array
     operators = string_array[1]  # type: np.array
     formations = string_array[2]  # type: np.array
     formation_1 = string_array[3]  # type: np.array
@@ -68,9 +70,9 @@ def form_norm(string_array, known_formations=None):
         norm_form.dtype == known_formations.dtype == string_array.dtype
     ), "dtypes not matching"
 
-    assert (
-        np.sum(np.char.find(formations, "|") >= 0) > 0
-    ), "formations (string_array[2]) should not contain pipe operator"
+    # assert (
+    #     np.sum(np.char.find(formations, "|") >= 0) > 0
+    # ), "formations (string_array[2]) should not contain pipe operator"
 
     # Think of the logic as a sequence of steps with priority.
     # If a case fulfills a condition then that should not be set by sub sequent steps.
@@ -88,7 +90,9 @@ def form_norm(string_array, known_formations=None):
     )
 
     # If Operator equals CASILLAS and Well Name contains "MXH" or "MH", then SYCAMORE.
-    well_mxh_mh = (np.char.find(wells, "MXH") >= 0) | (np.char.find(wells, "MH") >= 0)
+    well_mxh_mh = (np.char.find(well_numbers, "MXH") >= 0) | (
+        np.char.find(well_numbers, "MH") >= 0
+    )
     norm_form = np.where(
         (norm_form == "") & (np.char.find(operators, "CASILLAS") >= 0) & well_mxh_mh,
         "SYCAMORE",

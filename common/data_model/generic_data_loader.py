@@ -74,25 +74,3 @@ class DataLoader:
             raise ColumnMismatch(
                 expected_columns=table_columns, received_columns=df_columns
             )
-
-    @staticmethod
-    def get_column_types(table: SQLTable, col_type):
-        """
-        Used to get columns of certain type from the SQLTable
-
-        Parameters
-        ----------
-        table: SQLTable
-        col_type:
-            SQLAlchemy Column Type to filter for
-
-        Returns
-        -------
-        List of SQLAlchemy Columns
-        """
-        table_columns = table.columns
-        cols = list()
-        for column in table_columns:
-            if isinstance(column.type, col_type):
-                cols.append(column.name)
-        return cols

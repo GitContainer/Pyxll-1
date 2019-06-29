@@ -432,15 +432,7 @@ def process_section_online(df_i_w_l, df_f1000, df_f1001, df_f1002, df_inc_den):
 
 @pytest.mark.parametrize(
     "xl, fm_data_manager_xl, make_dca_pars, caplog",
-    [
-        (
-            None,
-            "C:/Users/kiran/PycharmProjects/Pyxll/financial_model/backup/named/test.fm",
-            (100, np.float32),
-            None,
-        )
-    ],
-
+    [(None, None, (100, np.float32), None)],
     indirect=True,
 )
 def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
@@ -457,7 +449,6 @@ def test_kiran(xl, fm_data_manager_xl, make_dca_pars, caplog):
     result_df = process_section_online(index_well_land, f1000, f1001, f1002, inc_den)
     print(result_df.shape)
     print(result_df.columns)
+
+    assert result_df.shape[0] == result_df.trsm_heh.unique().shape[0]
     dm["section_onelines"] = result_df
-
-
-    assert True

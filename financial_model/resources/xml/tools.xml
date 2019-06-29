@@ -6,5 +6,10 @@
                             label="Normalize Formation"
                             onAction="fm_ribbon_functions.normalize_formation"
                             image="../icon_set/w10/dark/form_norm.png"/>
+                    <button id="decline_wells"
+                        size="large"
+                        label="Decline Wells"
+                        onAction="fm_ribbon_functions.decline_wells"
+                        image="../icon_set/w10/dark/dca.png"/>
                 </group>
     </customUI>

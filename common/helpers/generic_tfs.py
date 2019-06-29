@@ -25,7 +25,7 @@ def tf_api(x):
 
 
 def tf_date(x):
-    return x.astype("M8[D]")
+    return pd.to_datetime(x)
 
 
 def tf_float(x):

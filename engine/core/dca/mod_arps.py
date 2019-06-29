@@ -1,15 +1,7 @@
 import logging
 import numpy as np
 from numba import jit
-
-
-# def __init__(self, bounds=[(0.95, 1.05), (0.01, 0.99), (0.06, 0.09), (0.001, 2.0)]):
-#     self.bounds = bounds
-#     self.initial_guess = [np.mean(value) for value in bounds]
-#     # Setting Dmin to 0.06
-#     self.initial_guess[2] = 0.06
-#     self._log = logging.getLogger(__name__)
-from generic_fns import time_it
+from scipy.optimize import minimize
 
 
 def np_mod_arps_fit(mprod, pars):
@@ -64,6 +56,7 @@ def np_mod_arps_fit(mprod, pars):
     switch_month = switch_day * (miy / diy) - one
     # Hyperbolic and exponential months
     month = np.arange(0, mprod, 1).astype(pars_dtype)
+    # months = month.reshape((1, -1))
     months = np.reshape(np.tile(month, [batch_size]), [batch_size, mprod])
 
     # exp_months = np.round(np.maximum(months - switch_month, zero))
@@ -84,3 +77,13 @@ def np_mod_arps_fit(mprod, pars):
     # combining Hyperbolic and exponential together
     prod = (one - switch_flag) * hyp_prod + switch_flag * exp_prod
     return prod
+
+
+nb_mod_arps = jit(np_mod_arps_fit, nopython=True, fastmath=True, error_model="numpy")
+
+
+def modarps_rmse(pars, actual):
+    pars = pars.reshape(-1, 1)
+    mprod = actual.shape[0]
+    predicted = np_mod_arps_fit(mprod, pars)
+    return np.sqrt(np.sum(np.square(actual - predicted)))

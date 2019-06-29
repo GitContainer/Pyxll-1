@@ -110,3 +110,34 @@ class FMDataManager(DataManager):
 
         settings = pd.concat([internal_settings, external_settings])
         return settings
+
+    def get_initial_guess(self):
+        initial_guess = [
+            self.get_par("sett_ip_start", tf=float),
+            self.get_par("sett_de_start", tf=float),
+            self.get_par("sett_dmin_start", tf=float),
+            self.get_par("sett_b_start", tf=float),
+        ]
+        return initial_guess
+
+    def get_bounds(self):
+        bounds = [
+            (
+                self.get_par("sett_ip_low", tf=float),
+                self.get_par("sett_ip_high", tf=float),
+            ),
+            (
+                self.get_par("sett_de_low", tf=float),
+                self.get_par("sett_de_high", tf=float),
+            ),
+            (
+                self.get_par("sett_dmin_low", tf=float),
+                self.get_par("sett_dmin_high", tf=float),
+            ),
+            (
+                self.get_par("sett_b_low", tf=float),
+                self.get_par("sett_b_high", tf=float),
+            ),
+        ]
+
+        return bounds

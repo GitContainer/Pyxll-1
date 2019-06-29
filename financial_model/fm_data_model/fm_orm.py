@@ -24,6 +24,18 @@ class NumpyType(TypeDecorator):
         return pickle.loads(zlib.decompress(value))
 
 
+class Section(base):
+    __tablename__ = "sections"
+
+    trsm_heh = Column(String, primary_key=True)
+    x = Column(Integer)
+    y = Column(Integer)
+    acres = Column(Float)
+
+    def __str__(self):
+        return f"{self.trsm_heh} - ({self.x}, {self.y})"
+
+
 class Project_State_Asset(base):
     __tablename__ = "project_state_assets"
 
@@ -55,18 +67,6 @@ class Project_State_Asset(base):
 
     def __str__(self):
         return f"{self.trsm_heh} - {self.net_acres} - {self.royalty}"
-
-
-class Section(base):
-    __tablename__ = "sections"
-
-    trsm_heh = Column(String, primary_key=True)
-    x = Column(Integer)
-    y = Column(Integer)
-    acres = Column(Float)
-
-    def __str__(self):
-        return f"{self.trsm_heh} - ({self.x}, {self.y})"
 
 
 class Section_Well(base):
@@ -313,8 +313,11 @@ class Well_Oneline(base):
     api = Column(Integer, ForeignKey("section_wells.api"), primary_key=True)
     formation = Column(String)
     operator_name = Column(String)
-    well_name = Column(String)
+    well_name = Column(String, default="UNNAMED")
     well_number = Column(String)
+    well_type = Column(String)
+
+    well_str = Column(String, default="UNNAMED")
 
     total_footage = Column(Integer)
 
@@ -339,10 +342,14 @@ class Well_Oneline(base):
     date_first_prod = Column(Date)
     date_last_prod = Column(Date)
 
+    ip_final_oil = Column(Float)
     di_oil = Column(Float)
     dmin_oil = Column(Float)
     b_oil = Column(Float)
+    ip_oil_idx = Column(Integer)
 
+    ip_final_gas = Column(Float)
     di_gas = Column(Float)
     dmin_gas = Column(Float)
     b_gas = Column(Float)
+    ip_gas_idx = Column(Integer)
